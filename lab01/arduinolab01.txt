@@ -1,0 +1,554 @@
+//C:\Users\claude\Documents\mes_cours\iris1\cours\xx_atmega328p>asciidoc.py -a toc2 arduino01_tp.txt
+
+Mise en place d'un EDI professionnel pour la carte Arduino Uno R3
+=================================================================
+:lang: fr
+:author: C.Defrance 
+:email: claude.defrance@lyc-benoit.fr
+// la ligne suivante ne fonctionne que sur windows
+:revdate: {sys:date /T}	
+:revnumber: v1.0
+:toc2:
+:numbered:
+:max-width: 800px
+:data-uri:
+:icons:
+:iconsdir: c:/bin/asciidoc/images/icons
+:imagesdir: img
+:conf-files: c:/Users/claude/.asciidoc/custom.conf
+:stylesdir: c:/Users/claude/.asciidoc/css
+:scriptsdir: c:/Users/claude/.asciidoc/js
+:source-highlighter: pygments
+
+La suite de TPs, dont celui-ci constitue le premier volet, a pour but de vous
+faire découvrir la programmation en langage C sur carte [maroon]*Arduino*
+depuis l' [maroon]#environnement de développement intégré (EDI)# _Atmel Studio
+6_.
+
+Présentation de la plateforme Arduino
+-------------------------------------
+
+Arduino est présentée sur son http://www.arduino.cc/[site officiel] de la
+manière suivante:
+
+[quote]
+Arduino is an [maroon]*open-source electronics prototyping platform*
+based on flexible, easy-to-use hardware and software. It's intended for
+artists, designers, hobbyists, and anyone interested in creating interactive
+objects or environments. 
+
+- _platform_ représente un ensemble matériel (_hardware_) + logiciel
+  (_software_) sur lequel d'autres logiciels peuvent s'exécuter
+- _electronics prototyping_ précise qu'Arduino est avant tout une plateforme de
+  prototypage électronique. Elle est donc particulièrement adaptée à la
+  validation d'un concept ou à l'apprentissage dans le domaine de l'électronique.
+- _open-source_ signifie que l'ensemble de la plateforme (hardware+software)
+  est libre. Ainsi, il est tout à fait légal de consulter/modifier tout ou
+  partie de son code source ainsi que sa partie matérielle et de les redistribuer
+  librement (de manière gratuite ou payante). L'ensemble des codes sources et les
+  schémas des cartes électroniques sont téléchargeables sur le
+  http://arduino.cc/en/[site officiel].
+
+Comme sa description l'indique, Arduino est destinée à la réalisation d'objets
+techniques interactifs. Ceux-ci ne nécessitent souvent pas un haut degré de
+technicité mais requièrent une mise en œuvre simple et rapide.
+
+Mais -- et c'est surtout ce dernier point qui nous intéresse -- Arduino constitue
+également une plateforme idéale pour s'initier à la programmation sur
+[maroon]*microcontrôleur*.
+
+Il existe plusieurs cartes Arduino mais toutes sont bâties autour de
+microcontôleurs AVR de la société _Atmel_.
+
+Un microcôntroleur est l'équivalent d'un ordinateur contenu dans un seul
+circuit intégré.  Celui-ci rassemble -- dans un seul boîtier -- un processeur, de
+la mémoire vive (pour les données), de la mémoire morte (pour les programmes),
+des périphériques (E/S, temporisateurs, convertisseurs analogique-numérique...)
+et constitue à lui tout seul un système complet qui ne nécessite que de très
+peu d'éléments externes pour fonctionner.
+
+La programmation d'un microncontrôleur nécessite la mise en place d'un
+environnement de développement qui permettra au minimum :
+
+- l'édition de code source en langage C/C++
+- la génération d'un exécutable (en langage machine spécifique au
+  microncontrôleur AVR et donc non exécutable dans un environnement de type PC)
+- le chargement de l'exécutable dans le microcontrôleur.
+
+Lorsque tous ces éléments sont réunis au sein d'un même logiciel, on parle
+alors d' _Environnement de dévéveloppement intégré (EDI)_ ou d'IDE en anglais
+pour _Integrated Development Environment_.
+
+Le développement sur carte Arduino se fait traditionnellement depuis l'EDI
+éponyme téléchargeable depuis http://arduino.cc/en/Main/Software[le site
+officiel Arduino].
+
+Cet EDI est idéal pour débuter dans la mesure où il cache la complexité liée au
+développement sur une plateforme embarquée.
+
+Cependant, il présente quelques limitations qui lui interdisent d'être utilisé
+dans un contexte professionnel.
+
+Une autre solution consiste à utiliser l'EDI gratuit _Atmel Studio 6_ proposé
+par la société _Atmel_ pour le développement sur l'ensemble des processeurs de
+sa gamme à architecture AVR ou ARM.
+
+_Atmel Studio 6_ dispose des outils suivants :
+
+- éditeur de texte
+- compilateur/assembleur/éditeur de liens
+- déboggueur
+- simulateur
+- interfaces avec des programmateurs in-situ (ou _ISP_ pour _In System
+  Programing_ ) dont le rôle est de programmer le microcontrôleur sans avoir à
+  le retirer de son support
+- pilotes/librairies, dénommés _Atmel Software Framework_ (ASF), facilitant la
+  programmation des processeurs
+
+[NOTE]
+_Atmel Studio 6_ est basé sur l'EDI _Visual Studio 2010_ de Microsoft.
+
+L'interface d'_Atmel Studio 6_ est très complète et ``professionnelle''.
+
+C'est pour cette raison que nous avons choisi cet EDI au lycée pour développer
+sur Arduino. Celui-ci est bien plus performant que l'EDI Arduino mais aussi
+plus complexe à utiliser...tout du moins au début !
+
+Installation de l'environnement de développement
+------------------------------------------------
+
+Celle-ci se déroule en plusieurs étapes :
+
+1. Installation d' _Atmel Studio 6_ v6.0.1843
+2. Mise à jour d' _Atmel Studio 6_ vers la version v6.0.1938 via le _service pack 1_
+3. Installation de l'extension _Terminal Window_ d' _Atmel Studio 6_
+4. Mise à jour de l'extension AVRGCC vers la version v3.4.1.81 
+5. Extraction du répertoire des librairies/outils spécifiques à la plateforme Arduino
+
+[red yellow-background]*Toutes les étapes d'installation se feront depuis une session Administrateur.*
+
+Installation d' Atmel Studio 6
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+=> Installer _Atmel Studio 6_ par l'intermédiaire de l'intallateur
++as6installer-6.0.1843.exe+ disponible sur le réseau.
+
+[red yellow-background]*Choisir ``c:\bin\Atmel\Atmel Studio 6'' comme
+répertoire d'installation*
+
+[CAUTION]
+Selon que Visual Studio 2010 et le framework .NET 4.0 sont déjà installés ou
+non sur la machine, la durée d'installation d' _Atmel Studio 6_ peut s'avérer
+plus ou moins longue...
+
+Mise à jour d'Atmel Studio 6 vers la version v6.0.1938
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Atmel a publié en septembre 2012 une mise à jour de son EDI via un service pack nommé +as6installer-stable-servicepack1-6.0.1938.exe+.
+
+=> Exécuter cette mise à jour.
+
+Installation de l'extension ``Terminal Window''
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+L'extension _Terminal window_ propose, depuis l'EDI, un terminal qui rend
+possible une communication en mode texte avec un dispositif connecté via une
+liaison série.
+
+Cette extension sera particulièrement utile lorsque vous développerez des
+programmes Arduino avec lesquels vous devrez intéragir depuis le PC de
+développement à des fins de contrôle ou de commande (supervision).
+
+=> Installer l'extension _Terminal Window_ depuis _Atmel Studio 6_ :
+
+1. Sélectionner l'option de menu *Tools->Extension mananger...*
+2. Sélectionner la catégorie *All* de la section *Available Downloads* présente
+   dans le panneau latéral de la fenêtre qui s'affiche
+3. Sélectionner puis télécharger l'extension *Terminal Window*
+4. Procéder à l'installation qui démarre automatiquement
+5. Une fois installé, redémarrer _Atmel Studio 6_ comme cela est proposé.
+
+Mise à jour de l'extension ``AVRGCC''
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+L'extension AVRGCC représente la chaine d'outils (_Toolchain_) qui permet de
+générer du code exécutable spécifique au processeur AVR présent sur la carte
+Arduino (ATMega328p pour une carte Arduino Uno R3) à partir de sources en
+langage C/C++.
+
+La version de cette extension livrée de base avec _Atmel Studio 6_ présente un
+bug qui peut empêcher le programme généré de fonctionner sur la carte Arduino.
+
+Sa mise à jour vers la version 3.4.81 corrige ce bug.
+
+[NOTE]
+.Pour plus d'informations sur ce bug
+=========
+Consulter les liens suivants :
+
+* http://sourceware.org/bugzilla/show_bug.cgi?id=13697
+* http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=121492&start=0
+* http://=blog.davidegrayson.com/2012/07/i-have-found-bug-in-atmel-studio-6.html
+=========
+
+La mise à jour de l'extension peut se faire depuis _Atmel Studio 6_ à partir de
+l' _Extension manager_ comme vu au paragraphe précédent.
+
+Cependant, cette installation implique un téléchargement d'environ 88Mo. Ceci
+rend le processus assez long, surtout si l'installation est menée en parallèle
+sur plusieurs postes. 
+
+Pour accélérer la mise à jour, on utilisera la méthode suivante.
+
+=> Procéder à la mise à jour de l'extension *AVRGCC* via un package VSIX :
+
+1. Quitter _Atmel Studio 6_
+2. Copier en local le fichier +avrgcc_3_4_1_81.vsix+ disponible sur le réseau
+3. Lancer l'installation de l'extension en double cliquant sur le fichier.
+
+[NOTE]
+.Installation classique depuis l' ``Extension Manager''
+====
+1. Sélectionner l'option de menu *Tools->Extension mananger...*
+2. Sélectionner la catégorie *Updates* de la section *Available Downloads* 
+   présente dans le panneau latéral de la fenêtre qui s'affiche
+3. Sélectionner puis télécharger l'extension *AVRGCC*
+4. Procéder à l'installation qui démarre automatiquement
+5. Une fois installé, redémarrer _Atmel Studio 6_ comme cela est proposé.
+====
+
+Extraction des librairies/outils spécifiques Arduino
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Le succès de l' ``écosystème'' Arduino provient non seulement du bas coût de la
+carte électronique mais aussi de l'ensemble des librairies qui ont été
+développées spécifiquement pour elle et l'ensemble de ses cartes d'extension
+appelées _shields_ (_shield_ contrôle moteur, _shield_ écran LCD, _shield_
+interface Ethernet ...) .
+
+Certaines de ces librairies sont intégrées à l'EDI Arduino de base. Ainsi, pour
+pouvoir les utiliser depuis _Atmel Studio 6_, il faut soit installer l'EDI
+_Arduino_ conjointement à l'EDI _Atmel Studio 6_ soit compter sur quelqu'un qui
+a fait un petit travail en amont pour pouvoir proposer à la communauté un
+``__package__'' qui regroupe l'ensemble des librairies/outils pour pouvoir
+développer sur Arduino à partir d' _Atmel Studio 6_.
+
+Ce travail a été fait pour vous et est disponible sur le réseau dans le fichier
++arduino_framework.zip+.
+
+=> Installer le ``__package__'' Arduino en dézippant l'archive
++arduino_framework.zip+ dans le répertoire [red yellow-background]*c:\bin\Atmel\unoware*.
+
+Configuration de l'environnement de développement
+-------------------------------------------------
+
+_Atmel Studio 6_ étant un EDI généraliste dans la mesure où il permet de
+développer sur une multitude de processeurs à architecture ARM et AVR, il va
+falloir le configurer pour une utilisation avec la carte Arduino Uno R3.
+
+Cette configuration, une fois effectuée, pourra être sauvegardée dans des
+fichiers afin de pouvoir être réutilisée/adaptée à chaque nouveau projet.
+
+La configuration s'applique d'une part à la chaîne de développement AVR et
+d'autre part à l'outil, appelé +avrdude+, qui va permettre d'envoyer le
+programme sur la carte Arduino (_upload_).
+
+[red yellow-background]*Toutes les étapes de configuration se feront depuis une
+session Utilisateur.*
+
+Création d'un nouveau projet
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+La configuration de l'environnement est fortement liée à la notion de projet.
+
+Un projet correspond d'une part à l'énumération des fichiers qui vont
+constituer le logiciel (fichiers sources, libraries) et d'autre part à une
+multitude de propriétés qui vont par exemple définir :
+
+- le processeur pour lequel le logiciel est développé, 
+- le type du logiciel (exécutable, librairie) 
+- les options des outils intervenant dans la génération du logiciel
+  (pré-processeur, compilateur, éditeur de liens)
+
+Donc, pour configurer l'environnement, il faut en premier lieu créer un nouveau
+projet.
+
+=> Créer un nouveau projet :
+
+. sélectionner l'option *File->New->Project...* à partir du menu principal.
+. dans la catégorie *C/C+\+* des modèles de projets proposés par défaut 
+  (_Installed templates_), choisir *GCC C++ Executable Project* 
+. renseigner les champs *Name*, *Location* comme suit :
+
+- Saisir +UnoExecutable+ pour *Name*
+- Indiquer l'endroit de sauvegarde du projet pour *Location* : 
+   __<rép. travail>__++\iris1\atmel_studio++
+
+. [yellow-background]#décocher *Create directory for solution*# avant 
+  de valider avec *OK*
+. sélectionner *ATMega328P* pour le type de processeur (*Device Family* :
+  megaAVR, 8-bits) puis valider avec *OK*
+
+Le projet est maintenant créé et se compose d'un unique fichier source C++
+nommé +UnoExecutable.cpp+.
+
+Configuration de la toolchain AVR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vous allez maintenant configurer la chaîne d'outils (_Toolchain_) responsable
+de la production de l'exécutable qui sera ensuite chargé dans le
+microcontrôleur de la carte Arduino.
+
+Cette configuration concerne les outils suivants :
+
+- le compilateur C
+- le compilateur C++
+- l'éditeur de lien
+
+Configuration du compilateur C : *AVR/GNU C Compiler*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. sélectionner l'option *Project->UnoExecutable properties...* à partir
+  du menu principal
+. dans la fenêtre qui s'affiche, choisir l'onglet *Toolchain* et 
+  sélectionner la catégorie *AVR/GNU C Compiler->Symbols*
++
+image::cfg01.png[align="center"]
++
+. Définir les symboles *ARDUINO=102* et *F_CPU=16000000L* en cliquant 
+  sur ``*+*''
++
+image::cfg02.png[align="center"]
++
+. Spécifier les chemins d'inclusion des fichiers d'entête (fichiers .h).
++
+En procédant suivant l'illustration ci-dessous, Vous devez spécifier ici 3 chemins :
++
+....
+c:\bin\Atmel\unoware\inc\core
+c:\bin\Atmel\unoware\inc\arduino102
+c:\bin\Atmel\unoware\inc\3rdparty
+....
++
+image::cfg03.png[align="center"]
++
+. Fixer le niveau d'optimisation pour le code généré
++
+image::cfg04.png[align="center"]
++
++-fdata-sections+ et +-ffunction-sections+ permettent lors de la phase
+d'édition de lien de ne pas inclure dans l'exécutable les données et fonctions
+non utilisées par le programme. Ces options ne sont pas requises mais fortement
+recommandées dans la mesure où les ressources mémoire de l'ATMega328P sont
+limitées (32ko de Flash, 2ko de RAM, 1ko d'EEPROM).
++
+. [yellow-background]#Reprendre l'ensemble de ces étapes en sélectionnant à
+présent la configuration *Release*.#
++
+image::cfg05.png[align="center"]
++
+Les *configurations* offrent un moyen d'appliquer rapidement un ensemble
+d'options à la _toolchain_ de façon à ce qu'elle produise des versions de
+l'exécutable adaptées à l'usage que l'on veut en faire. 
++
+Par défaut, les configurations *Debug* et *Release* sont proposées.
++
+La configuration *Debug* facilite le déboggage de l'application en proposant
+par exemple la possibilité d'exécuter le programme pas à pas au niveau source
+C/C++ ou de suivre l'évolution des variables définies dans le programme
+simplement en les désignant par leur identificateur. Cette configuration
+favorise donc le suivi du déroulement du programme mais ceci se fait au
+détriment de la taille de l'exécutable.
++
+Le but de la configuration *Release* consiste, quant à lui, à produire un
+exécutable plus compact mais dépourvu des facilités d'inspection proposées par
+la configuration *Debug*.
+
+Configurer le compilateur C++ : *AVR/GNU C+\+ Compiler*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. spécifier pour le compilateur C++ les mêmes options que pour le compilateur C
+
+. ajouter l'option +-fno-exceptions+ dans la catégorie *Miscellaneous*.
++
+Cette option désactive la gestion des exception C++ qui ne sont pas prises en
+charge par le compilateur AVR (voir
+http://www.nongnu.org/avr-libc/user-manual/FAQ.html#faq_cplusplus[ici] pour
+plus d'explications)
++
+image::cfg06.png[align="center"]
++
+. veiller à appliquer les options aux 2 configurations *Debug* et *Release*.
+
+Configurer l'éditeur de liens : *AVR/GNU Linker*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. spécifier les librairies du package Arduino (librairies issue de l'EDI
+Arduino + librairies tierces)
++
+image::cfg07.png[align="center"]
++
+Le nom complet de la librairie est constitué en préfixant chaque entrée par
++lib+ :
++
+- +lib+ + +m+ -> +libm+ : librairie mathématique
+- +lib+ + +core+ -> +libcore+ : librairie spécifique à la carte Arduino
+- +lib+ + +arduino102+ -> +libarduino102+ : ensemble de librairies pour cartes
+  additionnelles livrées avec l'EDI Arduino
+- +lib+ + +3rdparty+ -> +lib3rdparty+ : librairies tierces pour l'utilisation
+  des _shields_ dont on dispose au lycée.
++
+. spécifier l'emplacement de ces librairies
++
+....
+c:\bin\Atmel\unoware\lib\core
+c:\bin\Atmel\unoware\lib\arduino102
+c:\bin\Atmel\unoware\lib\3rdparty
+....
++
+image::cfg08.png[align="center"]
++
+. optimiser la taille de l'exécutable en cochant l'option
++-Wl,--gc-sections+ qui supprime de l'exécutable le code et les données non
+utilisées
++
+image::cfg09.png[align="center"]
+
+Configuration d' ``avrdude''
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+_avrdude_ est un programme open source pour la programmation (le flashage) des
+processeurs AVR.
+
+Il supporte un grand nombre de programmateurs dont celui intégré sur la carte
+Arduino qui permet de la programmer avec un simple câble USB.
+
+[NOTE]
+====
+Pour être plus précis, le programmateur en question est un morceau
+de code intégré dans un logiciel préchargé dans le microcontrôleur AVR de toute
+carte Arduino.
+
+Ce logiciel -- appelé _bootloader_ -- occupe dans sa version actuelle (Optiboot
+v4.4) 512 octets de la mémoire flash de l'Arduino.
+
+Le bootloader est démarré automatiquement à la suite d'une remise à zéro
+(_reset_) ou d'une mise sous tension de la carte. 
+
+Celui-ci se met alors en attente, sur la liaison USB, de commandes issues du PC
+de développement et conformes à un protocole particulier (décrit
+http://www.atmel.com/Images/doc2525.pdf[ici]). 
+
+Le cas échéant, ces commandes véhiculent le code de l'exécutable que l'on
+désire charger dans l'AVR et provoquent sa programmation en flash par le
+_bootloader_.
+
+A l'issue de cette programmation, le _bootloader_ lance l'exécutable
+nouvellement programmé.
+
+Dans le cas où aucune commande n'est reçue pendant un délai d'environ 1 seconde
+au (re)démarrage de la carte Arduino, le _bootloader_ lance l'exécution de la
+dernière application programmée en mémoire flash.
+====
+
+_avrdude_ est un programme en ligne de commande sans interface graphique.
+
+Son installation et intégration dans _Atmel Studio 6_ nécessitent :
+
+. l'installation dans Windows7 d'un driver USB approprié pour la carte Arduino
+. l'ajout et la configuration d'un outil externe dans _Atmel Studio 6_
+
+Installation du driver de la carte Arduino Uno R3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. connecter la carte Arduino sur un port USB du PC de développement.
++
+Windows7 essaye alors de trouver un driver approprié et ... échoue =>
+rassurez-vous, c'était prévu !
++
+. se rendre dans le gestionnaire de périphérique de Windows7 (bouton droit sur +Ordinateur+ dans l'explorateur Windows puis +propriétés+ puis +Gestionnaire de périphériques+)
+. mettre à jour le pilote
++
+image::install01.png[align="center"]
++
+image::install02.png[align="center"]
++
+image::install03.png[align="center"]
++
+image::install04.png[align="center"]
++
+image::install05.png[align="center"]
++
+. [yellow-background]#relever dans le gestionnaire de périphériques le numéro de port COM associé à l'Arduino Uno R3# (COM4 dans l'illustration ci-dessous mais sûrement différent sur votre PC).
++
+image::install06.png[align="center"]
+
+Ajouter _avrdude_ dans les outils externes d' _Atmel Studio 6_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. dans _Atmel Studio 6_, sélectionner l'option *Tools->External tools...* à
+  partir du menu principal
+. dans la fenêtre qui s'affiche, cliquer sur *Add*
+. renseigner les champs *Title*, *Command*, *Arguments* et *Initial directory* comme
+  spécifié ci-dessous en veillant à remplacer le n° de port COM par celui relevé précédemment.
+- *Title* -> ++USB to Serial Arduino Uno R3 Programmer : COM++[red yellow-background]*4* 
+- *Command* -> +C:\bin\Atmel\arduino\tools\avrdude\avrdude.exe+
+- *Arguments* -> ++-C/c:/bin/Atmel/arduino/tools/avrdude/avrdude.conf -v -v -patmega328p -carduino -P\\.\COM++[red yellow-background]**4**++ -b115200 -D -Uflash:w:"$(ProjectDir)Debug\$(ItemFileName).hex":i++
+- *Initial directory* -> +$(SolutionDir)+
++
+image::avrdude01.png[align="center"]
++
+. Valider avec le bouton *Apply*
+
+Sauvegarde des configurations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+De façon à ne pas avoir à réaliser toute cette configuration à chaque nouveau projet, _Atmel Studio 6_ offre la possibilité de sauvegarder un projet afin de s'en servir comme modèle (_template_) par la suite.
+
+Ceci est réalisé via l'option *Export Template...* disponible depuis le menu *File*.
+
+La configuration concernant _avrdude_ est quant à elle permanente mais peut quand même être sauvegardée via l'option *Import and Export Settings...* disponible depuis le menu *Tools*
+
+Sauvegarde du projet UnoExecutable en tant que modèle
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. sélectionner *File->Export Template...* depuis le menu principal
+. exporter le projet en tant que *Project template* en cochant la case associée dans la fenêtre qui s'affiche
+. passer à l'étape suivante en cliquant le bouton *next*
+. [optionnel] renseigner les champs *Template description*, *Icon Image* et *Preview Image*
+. sauvegarder le modèle en cliquant sur le bouton *Finish*.
+
+Le modèle vous sera à présent proposé lorsque que vous créerez un nouveau projet via l'option *File->New->Project...*
+
+Sauvegarde de la configuration d' _avrdude_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. sélectionner *Tools->Import and Export Settings...* depuis le menu principal
+. choisir *Export selected environment settings* dans la liste des actions proposées
+. passer à l'étape suivante en cliquant le bouton *Next*
+. décocher *All Settings* afin de choisir personnellement le type de configuration à sauvegarder
+. sélectionner la configuration des outils externes en cochant *All Settings->General Settings->External Tools List*
+. passer à l'étape suivante en cliquant le bouton *Next*
+. choisir un nom et un emplacement pour la sauvegarde
+. sauvegarder la configuration sélectionnée en cliquant le bouton *Finish*
+
+En cas de réinstallation d' _Atmel Studio 6_, la configuration d' _avrdude_ pourra désormais être ré-importée via le menu *Tools->Import and Export Settings...* en choisissant cette fois-ci l'action *Import selected environment settings*.
+
+Conclusion
+----------
+
+Dans ce TP vous avez :
+
+. découvert la plateforme Arduino
+. appris ce qu'était un microcontôleur
+. pris connaissance de la constitution d'un environnement de développement intégré (EDI)
+. configuré la _toolchain_ avec laquelle l'EDI s'interface pour programmer le microcontrôleur de la carte Arduino
+. découvert le rôle du _bootloader_ de la carte Arduino
+
+Le TP suivant abordera la programmation sur Arduino en réalisant un premier programme qui consiste à commander par laison série le clignotement de la DEL présente sur la carte Arduino.
+
+Ceci permettra également de valider l'installation réalisée dans ce TP.
+
+// fin du document
+
+
